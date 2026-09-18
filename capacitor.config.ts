@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'jitendraapp',
+  appId: 'com.jituks.jitendraapp',
+  appName: 'Jitendra App',
   webDir: 'www'
 };
 
