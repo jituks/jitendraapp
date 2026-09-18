@@ -1,0 +1,7 @@
+{
+  "name": "jitendraapp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
