@@ -58,10 +58,35 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Add APK download link to workflow summary
+      - name: Generate APK download QR code
         env:
           APK_ARTIFACT_URL: ${{ steps.upload_apk.outputs.artifact-url }}
         run: |
+          curl -sS -G "https://api.qrserver.com/v1/create-qr-code/" \
+            --data-urlencode "size=600x600" \
+            --data-urlencode "format=png" \
+            --data-urlencode "data=$APK_ARTIFACT_URL" \
+            -o apk-download-qr.png
+
+      - name: Upload APK QR code
+        uses: actions/upload-artifact@v4
+        with:
+          name: jitendraapp-apk-download-qr
+          path: apk-download-qr.png
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Add APK download link and QR code to workflow summary
+        env:
+          APK_ARTIFACT_URL: ${{ steps.upload_apk.outputs.artifact-url }}
+        run: |
+          ENCODED_URL=$(python3 -c 'import os, urllib.parse; print(urllib.parse.quote(os.environ["APK_ARTIFACT_URL"], safe=""))')
+
           echo "## Jitendra App — Android Debug APK" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "[Download the APK artifact](${APK_ARTIFACT_URL})" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Scan to open the APK download page" >> "$GITHUB_STEP_SUMMARY"
+          echo "![APK Download QR Code](https://api.qrserver.com/v1/create-qr-code/?size=300x300&format=png&data=${ENCODED_URL})" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "The QR PNG file is also available in the workflow artifacts as \`jitendraapp-apk-download-qr\`." >> "$GITHUB_STEP_SUMMARY"
